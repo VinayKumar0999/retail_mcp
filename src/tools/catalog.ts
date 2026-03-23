@@ -89,7 +89,7 @@ export const catalogTools = [
       }
 
       return apiClient.request('POST', '/tenants/catalog/upload/', {
-        multipart: { file: fileBuffer, filename },
+        multipart: { file: { data: fileBuffer, filename } },
       });
     },
   },

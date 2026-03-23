@@ -43,9 +43,8 @@ export function createMcpServer() {
 
   for (const tool of allTools) {
     const shape = getShape(tool.inputSchema as ZodTypeAny);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const handler = tool.handler as (args: any) => Promise<unknown>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = async (args: any) => {
       try {
         const result = await handler(args);
@@ -60,8 +59,8 @@ export function createMcpServer() {
         };
       }
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (server.tool as any)(tool.name, tool.description, shape, callback);
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   return server;

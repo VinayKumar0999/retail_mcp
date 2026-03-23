@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import FormData from 'form-data';
 import { config as appConfig } from './config';
 
 export class ApiClient {
@@ -23,7 +24,7 @@ export class ApiClient {
       body?: Record<string, unknown>;
       query?: Record<string, string | number | boolean | undefined>;
       headers?: Record<string, string>;
-      multipart?: Record<string, string | Buffer>;
+      multipart?: Record<string, string | Buffer | { data: Buffer; filename: string }>;
       skipAuth?: boolean;
     } = {}
   ): Promise<T> {
@@ -52,11 +53,11 @@ export class ApiClient {
     };
 
     if (opts.multipart) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const FormData = require('form-data');
       const fd = new FormData();
       for (const [k, v] of Object.entries(opts.multipart)) {
-        if (Buffer.isBuffer(v)) {
+        if (typeof v === 'object' && 'data' in v) {
+          fd.append(k, v.data, { filename: v.filename });
+        } else if (Buffer.isBuffer(v)) {
           fd.append(k, v, { filename: k });
         } else {
           fd.append(k, v);
