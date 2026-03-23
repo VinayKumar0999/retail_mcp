@@ -1,3 +1,5 @@
+// Configure BASE_URL via environment variable for your deployment environment.
+// The default points to the development API server; override in production.
 export const config = {
   baseUrl: process.env.BASE_URL ?? 'http://172.168.168.36:8006',
   accessToken: process.env.ACCESS_TOKEN ?? '',
