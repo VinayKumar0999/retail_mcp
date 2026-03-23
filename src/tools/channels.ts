@@ -12,11 +12,17 @@ export const channelTools = [
     }).passthrough(),
     async handler(args: { q: string; client: string; secret_key?: string; [k: string]: unknown }) {
       const { client, secret_key, q, ...rest } = args;
+      const effectiveSecretKey = secret_key ?? process.env.SECRET_KEY;
+      if (!effectiveSecretKey) {
+        throw new Error(
+          "channels_search requires a secret key: provide 'secret_key' in the tool arguments or set the SECRET_KEY environment variable."
+        );
+      }
       return apiClient.request('GET', '/api/channels/search/', {
         query: { q, ...(rest as Record<string, string | number | boolean | undefined>) },
         headers: {
           client,
-          ...(secret_key ? { 'X-SECRET-KEY': secret_key } : {}),
+          'X-SECRET-KEY': effectiveSecretKey,
         },
         skipAuth: true,
       });
