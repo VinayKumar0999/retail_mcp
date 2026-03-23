@@ -68,7 +68,7 @@ export function createMcpServer() {
 
 export async function startHttpServer() {
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   const transports: Map<string, SSEServerTransport> = new Map();
 
