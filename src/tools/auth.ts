@@ -13,6 +13,7 @@ export const authTools = [
       return apiClient.request('POST', '/tenants/login/', {
         body: { username: args.username, password: args.password },
         skipAuth: true,
+        skipDefaultHeaders: true,
       });
     },
   },
@@ -42,6 +43,7 @@ export const authTools = [
       return apiClient.request('POST', '/api/auth/token/refresh/', {
         body: { refresh: args.refresh },
         skipAuth: true,
+        skipDefaultHeaders: true,
       });
     },
   },

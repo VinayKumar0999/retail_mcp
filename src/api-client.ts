@@ -26,6 +26,7 @@ export class ApiClient {
       headers?: Record<string, string>;
       multipart?: Record<string, string | Buffer | { data: Buffer; filename: string }>;
       skipAuth?: boolean;
+      skipDefaultHeaders?: boolean;
     } = {}
   ): Promise<T> {
     const url = new URL(path, this.baseUrl);
@@ -39,11 +40,13 @@ export class ApiClient {
     if (this.accessToken && !opts.skipAuth) {
       headers['Authorization'] = `Bearer ${this.accessToken}`;
     }
-    if (this.tenantDomain && !headers['client']) {
-      headers['client'] = this.tenantDomain;
-    }
-    if (this.secretKey && !headers['X-SECRET-KEY'] && !headers['X-Secret-key']) {
-      headers['X-SECRET-KEY'] = this.secretKey;
+    if (!opts.skipDefaultHeaders) {
+      if (this.tenantDomain && !headers['client']) {
+        headers['client'] = this.tenantDomain;
+      }
+      if (this.secretKey && !headers['X-SECRET-KEY'] && !headers['X-Secret-key']) {
+        headers['X-SECRET-KEY'] = this.secretKey;
+      }
     }
 
     const axiosConfig: AxiosRequestConfig = {
