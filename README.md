@@ -1,16 +1,28 @@
 # Retail MCP Server
 
-A Model Context Protocol (MCP) server that exposes retail backoffice APIs as tools for AI assistants. Built with Node.js, TypeScript, and the official MCP SDK.
+A Model Context Protocol (MCP) server that exposes retail backoffice APIs as tools for AI assistants. Built with Python and the official MCP SDK.
+
+## Migration Notice
+
+This server has been migrated from the original Node.js/TypeScript implementation to Python. The functionality remains the same, but now uses Python's asyncio and the official MCP Python SDK.
 
 ## Prerequisites
 
-- Node.js 18 or higher
-- npm 9 or higher
+- Python 3.10 or higher
+- pip
 
 ## Installation
 
+### Using pip
+
 ```bash
-npm install
+pip install -r requirements.txt
+```
+
+### Using uv (recommended for faster installs)
+
+```bash
+uv pip install -r requirements.txt
 ```
 
 ## Configuration
@@ -28,30 +40,27 @@ cp .env.example .env
 | `REFRESH_TOKEN` | JWT refresh token for automatic token renewal | _(empty)_ |
 | `TENANT_DOMAIN` | Default tenant domain sent as the `client` header | _(empty)_ |
 | `SECRET_KEY` | Default secret key sent as `X-SECRET-KEY` header | _(empty)_ |
-| `PORT` | HTTP port for the MCP server | `3000` |
+| `PORT` | HTTP port for the MCP server (not used in stdio mode) | `3000` |
 
 ## Running
 
-**Development** (with ts-node):
+The Python MCP server uses stdio transport (standard input/output) which is the recommended way to run MCP servers.
+
+**Run directly:**
 
 ```bash
-npm run dev
+python -m retail_mcp_server
 ```
 
-**Production** (compile first, then run):
+**Run with uv:**
 
 ```bash
-npm run build
-npm start
+uv run python -m retail_mcp_server
 ```
 
 ## Connecting an MCP Client
 
-Use the SSE endpoint to connect any MCP-compatible client:
-
-```
-http://localhost:3000/sse
-```
+The Python implementation uses **stdio transport** instead of HTTP/SSE. This is the recommended and more efficient transport mechanism for MCP servers.
 
 ### Example: Claude Desktop config
 
@@ -59,19 +68,41 @@ http://localhost:3000/sse
 {
   "mcpServers": {
     "retail": {
-      "url": "http://localhost:3000/sse"
+      "command": "python",
+      "args": ["-m", "retail_mcp_server"],
+      "env": {
+        "BASE_URL": "http://172.168.168.36:8006",
+        "ACCESS_TOKEN": "your-access-token",
+        "TENANT_DOMAIN": "your-tenant-domain",
+        "SECRET_KEY": "your-secret-key"
+      }
     }
   }
 }
 ```
 
-### Health check
+Or if using uv:
 
-```
-GET http://localhost:3000/health
+```json
+{
+  "mcpServers": {
+    "retail": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "retail_mcp_server"],
+      "env": {
+        "BASE_URL": "http://172.168.168.36:8006",
+        "ACCESS_TOKEN": "your-access-token",
+        "TENANT_DOMAIN": "your-tenant-domain",
+        "SECRET_KEY": "your-secret-key"
+      }
+    }
+  }
+}
 ```
 
 ## Available Tools
+
+All tools from the original TypeScript implementation have been migrated:
 
 ### Authentication
 
@@ -139,10 +170,46 @@ GET http://localhost:3000/health
 | `analytics_track_event` | Track an analytics event — POST `/analytics/events/` |
 | `analytics_funnel_search` | Funnel search analytics — GET `/analytics/funnel_search/` |
 
+## Development
+
+### Install development dependencies
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+### Code formatting
+
+```bash
+black retail_mcp_server/
+```
+
+### Type checking
+
+```bash
+mypy retail_mcp_server/
+```
+
+### Linting
+
+```bash
+ruff check retail_mcp_server/
+```
+
+## Migration from TypeScript
+
+The key changes in the Python migration:
+
+1. **Transport**: Changed from HTTP/SSE to stdio (standard MCP transport)
+2. **Dependencies**: Replaced `axios` with `httpx`, `express` with stdio transport
+3. **Async**: Uses Python's `asyncio` instead of Node.js promises
+4. **Type hints**: Python type hints instead of TypeScript types
+5. **Configuration**: Uses `pydantic-settings` instead of plain environment variables
+6. **MCP SDK**: Uses official Python MCP SDK instead of TypeScript SDK
+
 ## Security Notes
 
 - **Never commit `.env`** — it is listed in `.gitignore`.
 - **Destructive tools** (`tenant_offboard`, `ai_purge`) require an explicit `confirm: true` argument to prevent accidental data loss.
 - Access tokens are stored in memory only; they are never logged or persisted to disk by this server.
-- The server does not enforce authentication on its own endpoints — deploy behind a reverse proxy with TLS and access controls in production.
 - Rotate `SECRET_KEY` and tokens regularly and use short-lived JWT access tokens with refresh-token rotation.
