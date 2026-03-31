@@ -1,0 +1,35 @@
+"""Retail MCP Server - Tools package."""
+
+from .auth import AUTH_TOOLS, AUTH_HANDLERS
+from .tenants import TENANT_TOOLS, TENANT_HANDLERS
+from .catalog import CATALOG_TOOLS, CATALOG_HANDLERS
+from .search import SEARCH_TOOLS, SEARCH_HANDLERS
+from .channels import CHANNEL_TOOLS, CHANNEL_HANDLERS
+from .ai_search import AI_SEARCH_TOOLS, AI_SEARCH_HANDLERS
+from .airflow import AIRFLOW_TOOLS, AIRFLOW_HANDLERS
+from .analytics import ANALYTICS_TOOLS, ANALYTICS_HANDLERS
+
+# Combine all tools and handlers
+ALL_TOOLS = [
+    *AUTH_TOOLS,
+    *TENANT_TOOLS,
+    *CATALOG_TOOLS,
+    *SEARCH_TOOLS,
+    *CHANNEL_TOOLS,
+    *AI_SEARCH_TOOLS,
+    *AIRFLOW_TOOLS,
+    *ANALYTICS_TOOLS,
+]
+
+ALL_HANDLERS = {
+    **AUTH_HANDLERS,
+    **TENANT_HANDLERS,
+    **CATALOG_HANDLERS,
+    **SEARCH_HANDLERS,
+    **CHANNEL_HANDLERS,
+    **AI_SEARCH_HANDLERS,
+    **AIRFLOW_HANDLERS,
+    **ANALYTICS_HANDLERS,
+}
+
+__all__ = ["ALL_TOOLS", "ALL_HANDLERS"]
